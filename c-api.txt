@@ -1,4 +1,3 @@
-```
 ## Kafka C library
 > https://github.com/confluentinc/librdkafka/
 librdkafka is a C library implementation of the Apache Kafka protocol, providing Producer, Consumer and Admin clients. It was designed with message delivery reliability and high performance in mind, current figures exceed 1 million msgs/second for the producer and 3 million msgs/second for the consumer.
@@ -214,4 +213,3 @@ $ producer config.ini
 > run console-consumer
 $ kafka-console-consumer --topic purchases --bootstrap-server localhost:9092 --from-beginning
 
-```
