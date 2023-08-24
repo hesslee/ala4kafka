@@ -83,3 +83,112 @@ Source: Conversation with Bing, 8/24/2023
 (8) undefined. http://json-c.github.io/json-c/.
 (9) undefined. http://www.json.org/.
 (10) undefined. http://www.json.org/fatfree.html.
+
+
+====================
+One possible way to create a JSON object with schema t1 (c1 int, c2 varchar(20), c3 int) and c2 is null and c3 is null using cJSON is to use cJSON_AddNullToObject function, which adds a null value to the JSON object with the given key. Here is an example code snippet that creates such a JSON object and prints it to a string:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "cJSON.h"
+
+int main (void) {
+    /* Create a JSON object with schema t1 (c1 int, c2 varchar(20), c3 int) */
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(json, "c1", 42); // c1 is an integer
+    cJSON_AddNullToObject(json, "c2"); // c2 is null
+    cJSON_AddNullToObject(json, "c3"); // c3 is null
+
+    /* Print the JSON object to a string */
+    char *payload = cJSON_PrintUnformatted(json);
+    printf("%s\n", payload);
+
+    /* Clean up */
+    cJSON_Delete(json);
+    free(payload);
+
+    return 0;
+}
+Copy
+This code will output the following JSON string:
+
+{"c1":42,"c2":null,"c3":null}
+Copy
+Note that the order of keys in the JSON object may vary depending on the implementation of cJSON. Also, the JSON string does not have any whitespace or formatting for compactness.
+
+=============================================
+One possible way to create a JSON object with schema t1 (c1 int, c2 blob, c3 int) using cJSON is to use cJSON_AddItemToObject function, which adds an item to the JSON object with the given key. A blob is a binary large object that can store any kind of data, such as images, audio, video, etc. To represent a blob in JSON, we can use base64 encoding, which converts binary data into a string of ASCII characters. Here is an example code snippet that creates such a JSON object and prints it to a string:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "cJSON.h"
+
+/* A function that encodes a blob into a base64 string */
+char *base64_encode(const unsigned char *data, size_t input_length) {
+    /* The base64 alphabet */
+    static const char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+                                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                                          'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+                                          'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+                                          'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                                          'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                                          'w', 'x', 'y', 'z', '0', '1', '2', '3',
+                                          '4', '5', '6', '7', '8', '9', '+', '/'};
+
+    /* The output length of the base64 string */
+    size_t output_length = 4 * ((input_length + 2) / 3);
+
+    /* Allocate memory for the base64 string */
+    char *encoded_data = malloc(output_length + 1);
+    if (encoded_data == NULL) return NULL;
+
+    /* Encode each group of three bytes into four characters */
+    for (size_t i = 0, j = 0; i < input_length;) {
+        /* Get the next three bytes */
+        uint32_t octet_a = i < input_length ? data[i++] : 0;
+        uint32_t octet_b = i < input_length ? data[i++] : 0;
+        uint32_t octet_c = i < input_length ? data[i++] : 0;
+
+        /* Combine them into a 24-bit value */
+        uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
+
+        /* Encode each 6-bit segment into a character */
+        encoded_data[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
+        encoded_data[j++] = encoding_table[(triple >> 2 * 6) & 0x3F];
+        encoded_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
+        encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
+    }
+
+    /* Add padding if necessary */
+    for (size_t i = 0; i < mod_table[input_length % 3]; i++)
+        encoded_data[output_length - 1 - i] = '=';
+
+    /* Add null terminator and return the base64 string */
+    encoded_data[output_length] = '\0';
+    return encoded_data;
+}
+
+int main (void) {
+    /* Create a JSON object with schema t1 (c1 int, c2 blob, c3 int) */
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(json, "c1", 42); // c1 is an integer
+    cJSON_AddItemToObject(json, "c2", cJSON_CreateString(base64_encode("Hello, world!", strlen("Hello, world!")))); // c2 is a blob encoded in base64
+    cJSON_AddNumberToObject(json, "c3", 123); // c3 is another integer
+
+    /* Print the JSON object to a string */
+    char *payload = cJSON_PrintUnformatted(json);
+    printf("%s\n", payload);
+
+    /* Clean up */
+    cJSON_Delete(json);
+    free(payload);
+
+    return 0;
+}
+Copy
+This code will output the following JSON string:
+
+{"c1":42,"c2":"SGVsbG8sIHdvcmxkIQ==","c3":123}
+Copy
+Note that the order of keys in the JSON object may vary depending on the implementation of cJSON. Also, the JSON string does not have any whitespace or formatting for compactness. The base64 encoding function is adapted from [this source].
