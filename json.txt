@@ -1,0 +1,85 @@
+One possible way to produce a Kafka message using librdkafka C library and a popular JSON library is to use cJSON⁶, which is an ultralightweight JSON parser in ANSI C. Here is an example code snippet that creates a JSON object with three fields corresponding to the table schema t1(c1 int, c2 varchar(20), c3 int), and then sends it to a Kafka topic using librdkafka producer API⁵:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <librdkafka/rdkafka.h>
+#include "cJSON.h"
+
+#define BROKERS "host1:9092,host2:9092"
+#define TOPIC "t1"
+
+/* Callback function to handle delivery report */
+static void dr_msg_cb (rd_kafka_t *rk, const rd_kafka_message_t *rkmessage, void *opaque) {
+    if (rkmessage->err)
+        fprintf(stderr, "%% Message delivery failed: %s\n", rd_kafka_err2str(rkmessage->err));
+    else
+        fprintf(stderr, "%% Message delivered (%zd bytes, partition %d)\n", rkmessage->len, rkmessage->partition);
+}
+
+int main (void) {
+    /* Create a JSON object with three fields */
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(json, "c1", 42); // c1 is an integer
+    cJSON_AddStringToObject(json, "c2", "Hello, world!"); // c2 is a string that can have comma
+    cJSON_AddNumberToObject(json, "c3", 123); // c3 is another integer
+
+    /* Print the JSON object to a string */
+    char *payload = cJSON_PrintUnformatted(json);
+    size_t payload_len = strlen(payload);
+
+    /* Create a Kafka producer handle and configure it */
+    char errstr[512];
+    rd_kafka_conf_t *conf = rd_kafka_conf_new();
+    rd_kafka_conf_set(conf, "bootstrap.servers", BROKERS, errstr, sizeof(errstr));
+    rd_kafka_conf_set_dr_msg_cb(conf, dr_msg_cb); // set delivery report callback
+
+    /* Create a Kafka producer instance */
+    rd_kafka_t *rk = rd_kafka_new(RD_KAFKA_PRODUCER, conf, errstr, sizeof(errstr));
+    if (!rk) {
+        fprintf(stderr, "%% Failed to create producer: %s\n", errstr);
+        exit(1);
+    }
+
+    /* Create a Kafka topic handle for the given topic */
+    rd_kafka_topic_t *rkt = rd_kafka_topic_new(rk, TOPIC, NULL);
+
+    /* Produce a message to the topic with the JSON payload */
+    if (rd_kafka_produce(rkt, RD_KAFKA_PARTITION_UA, RD_KAFKA_MSG_F_COPY,
+                         payload, payload_len, NULL, 0, NULL) == -1) {
+        fprintf(stderr, "%% Failed to produce message: %s\n", rd_kafka_err2str(rd_kafka_last_error()));
+        exit(1);
+    }
+
+    /* Wait for delivery report */
+    rd_kafka_poll(rk, -1);
+
+    /* Clean up */
+    rd_kafka_topic_destroy(rkt);
+    rd_kafka_destroy(rk);
+    cJSON_Delete(json);
+    free(payload);
+
+    return 0;
+}
+```
+
+This code assumes that the Kafka brokers are running on host1 and host2 with port 9092, and that the topic t1 exists. 
+The JSON payload is printed without formatting to save space. 
+The message is produced with no key and RD_KAFKA_PARTITION_UA flag, 
+which means that the partition will be assigned by the producer automatically. 
+The delivery report callback function prints the status of the message delivery. 
+The code also handles memory allocation and deallocation for the JSON object and the payload string.
+
+Source: Conversation with Bing, 8/24/2023
+(1) DaveGamble/cJSON: Ultralightweight JSON parser in ANSI C - GitHub. https://github.com/DaveGamble/cJSON.
+(2) GitHub - json-c/json-c: https://github.com/json-c/json-c is the official code .... https://github.com/json-c/json-c.
+(3) Kafka C/C++ Client | Confluent Documentation. https://docs.confluent.io/kafka-clients/librdkafka/current/overview.html.
+(4) GitHub - confluentinc/librdkafka: The Apache Kafka C/C++ library. https://github.com/confluentinc/librdkafka.
+(5) GitHub - morganstanley/modern-cpp-kafka: A C++ API for Kafka clients (i.e .... https://github.com/morganstanley/modern-cpp-kafka.
+(6) c - zookeeper librdkafka example - Stack Overflow. https://stackoverflow.com/questions/28600018/zookeeper-librdkafka-example.
+(7) Parsing JSON using C - Stack Overflow. https://stackoverflow.com/questions/6673936/parsing-json-using-c.
+(8) undefined. http://json-c.github.io/json-c/.
+(9) undefined. http://www.json.org/.
+(10) undefined. http://www.json.org/fatfree.html.
