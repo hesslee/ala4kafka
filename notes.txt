@@ -1,0 +1,73 @@
+drop sequence seq1;
+create sequence seq1;
+drop TABLE users;
+CREATE TABLE users (
+id INT default seq1.nextval PRIMARY KEY ,
+name VARCHAR(20),
+age int,
+gender char(1)
+);
+insert into users (name,age,gender) values ('foo,bar', 20, 'M');
+select * from users;
+
+
+## create altibase JDBC source connector using query
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-source-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-source-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "mode": "incrementing",
+        "incrementing.column.name": "ID",
+        "topic.prefix": "altibase-",
+        "query": "select id, name, age, gender from sys.users",
+        "poll.interval.ms": 5000
+    }
+}'
+
+$ kafka-topics --delete --topic  purchases   --bootstrap-server localhost:9092
+$ kafka-topics --create --topic  purchases   --bootstrap-server localhost:9092
+$ kafka-topics  --describe --topic purchases --bootstrap-server localhost:9092
+$ kafka-console-consumer --topic purchases --bootstrap-server localhost:9092 --from-beginning
+
+drop table "test-purchases";
+CREATE TABLE "test-purchases" (
+"c1" INT PRIMARY KEY ,
+"c2" VARCHAR(20),
+"c3" int
+);
+
+$ curl -X GET "http://localhost:8083/connectors/altibase-sink-connector/config"
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-sink-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-sink-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "insert.mode": "insert",
+        "table.name.format": "test-${topic}",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": true,
+        "value.converter.schemas.enable": true,
+        "topics": "purchases"
+    }
+}'
+
+
+
+set vertical on;
+select * from "test-purchases";
