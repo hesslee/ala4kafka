@@ -123,3 +123,9 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
 
 set vertical on;
 select * from "test-purchases";
+iSQL> select * from "test-purchases";
+c1          c2                    c3
+--------------------------------------------------
+42          Hello, world!         123
+1 row selected.
+
