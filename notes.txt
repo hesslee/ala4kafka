@@ -68,6 +68,58 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
 }'
 
 
+#### key part
+{
+  "schema": {
+    "type": "struct",
+    "fields": [
+      {
+        "type": "int32",
+        "optional": false,
+        "field": "c1"
+      }
+    ],
+    "optional": false,
+    "name": "key"
+  },
+  "payload": {
+    "c1": 42
+  }
+}
+
+
+#### value part
+{
+  "schema": {
+    "type": "struct",
+    "fields": [
+      {
+        "type": "int32",
+        "optional": false,
+        "field": "c1"
+      },
+      {
+        "type": "string",
+        "optional": false,
+        "field": "c2"
+      },
+      {
+        "type": "int32",
+        "optional": false,
+        "field": "c3"
+      }
+    ],
+    "optional": false,
+    "name": "value"
+  },
+  "payload": {
+    "c1": 42,
+    "c2": "Hello, world!",
+    "c3": 123
+  }
+}
+
+
 
 set vertical on;
 select * from "test-purchases";
