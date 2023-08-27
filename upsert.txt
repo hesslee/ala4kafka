@@ -1,20 +1,31 @@
-DECLARE
-   r1 "ttt123"%ROWTYPE;
-BEGIN
-        r1.i1 := ?;
-        r1.i2 := ?;
-        r1.i3 := ?;
-        INSERT INTO "ttt123" VALUES r1;  
-EXCEPTION
-WHEN DUP_VAL_ON_INDEX THEN
+"DECLARE " +
+"   r1 "ttt123"%ROWTYPE; " +
+"BEGIN " +
+"        r1.c1 := ?; " +
+"        r1.c2 := ?; " +
+"        r1.c3 := ?; " +
+"        INSERT INTO "test-purchases" VALUES r1; " +  
+"EXCEPTION " +
+"WHEN DUP_VAL_ON_INDEX THEN " +
+"        update "test-purchases" set c2 = r1.c2, c3 = r1.c3 where c1 = r1.c1 ; " +
+"END;"
 
-END;
-
-
-CREATE TABLE "ttt123"(
-    i1 INTEGER,
-    i2 INTEGER,
-    i3 INTEGER );
+    ExpressionBuilder builder = expressionBuilder();
+    builder.append("declare ");
+    builder.append("r1 "); builder.append(table); builder.append("%rowtype; ");
+    builder.append("begin ");
+    builder.appendList()
+           .delimitedBy(", ")
+           .transformedBy(ExpressionBuilder.columnNamesWithPrefix("? "))
+           .of(keyColumns, nonKeyColumns);
+    builder.append(" FROM dual) incoming on(");
+ 
+drop table "test-purchases";
+CREATE TABLE "test-purchases" (
+"c1" INT PRIMARY KEY ,
+"c2" VARCHAR(20),
+"c3" int
+);
 
 CREATE OR REPLACE PROCEDURE proc1
 AS
