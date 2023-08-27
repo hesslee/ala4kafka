@@ -1,0 +1,275 @@
+###### Install ######
+## References
+> nok.altibase.com/display/rnd/JDBC+Connector+with+Altibase
+> https://docs.confluent.io/kafka-connectors/jdbc/current/index.html
+> https://docs.confluent.io/kafka-connectors/jdbc/current/source-connector/source_config_options.html#jdbc-source-configs
+> https://github.com/confluentinc/kafka-connect-jdbc/blob/master/CONTRIBUTING.md
+> https://docs.confluent.io/platform/current/connect/devguide.html
+> http://www.drimsys.com/ko/product/sw/view/85
+ 
+## machine
+> IP : 192.168.1.113
+> account : hess/hess
+
+## install confluent platform
+> https://docs.confluent.io/platform/7.4/installation/installing_cp/zip-tar.html
+$ curl -O https://packages.confluent.io/archive/7.4/confluent-7.4.0.tar.gz
+$ tar xzf confluent-7.4.0.tar.gz
+$ export CONFLUENT_HOME=/data/hess/work/confluent-7.4.0
+$ export PATH=$PATH:$CONFLUENT_HOME/bin
+ 
+## start up confluent platform
+$ confluent local services start
+The local commands are intended for a single-node development environment only, NOT for production usage. See more: https://docs.confluent.io/current/cli/index.html
+As of Confluent Platform 8.0, Java 8 is no longer supported.
+Using CONFLUENT_CURRENT: /tmp/confluent.509217
+Starting ZooKeeper
+ZooKeeper is [UP]
+Starting Kafka
+Kafka is [UP]
+Starting Schema Registry
+Schema Registry is [UP]
+Starting Kafka REST
+Kafka REST is [UP]
+Starting Connect
+Connect is [UP]
+Starting ksqlDB Server
+ksqlDB Server is [UP]
+Starting Control Center
+Control Center is [UP]
+
+## install jdbc connector
+> https://www.confluent.io/hub/confluentinc/kafka-connect-jdbc
+$ confluent-hub install confluentinc/kafka-connect-jdbc:latest
+Downloading component Kafka Connect JDBC 10.7.3, provided by Confluent, Inc. from Confluent Hub and installing into /data/hess/work/confluent-7.4.0/share/confluent-hub-components
+Detected Worker's configs:
+  1. Standard: /data/hess/work/confluent-7.4.0/etc/kafka/connect-distributed.properties
+  2. Standard: /data/hess/work/confluent-7.4.0/etc/kafka/connect-standalone.properties
+  3. Standard: /data/hess/work/confluent-7.4.0/etc/schema-registry/connect-avro-distributed.properties
+  4. Standard: /data/hess/work/confluent-7.4.0/etc/schema-registry/connect-avro-standalone.properties
+  5. Based on CONFLUENT_CURRENT: /tmp/confluent.509217/connect/connect.properties
+  6. Used by Connect process with PID : /tmp/confluent.509217/connect/connect.properties
+Do you want to update all detected configs? (yN) y
+Adding installation directory to plugin path in the following files:
+  /data/hess/work/confluent-7.4.0/etc/kafka/connect-distributed.properties
+  /data/hess/work/confluent-7.4.0/etc/kafka/connect-standalone.properties
+  /data/hess/work/confluent-7.4.0/etc/schema-registry/connect-avro-distributed.properties
+  /data/hess/work/confluent-7.4.0/etc/schema-registry/connect-avro-standalone.properties
+  /tmp/confluent.509217/connect/connect.properties
+  /tmp/confluent.509217/connect/connect.properties
+Completed
+
+## restart kafka connect & check plugin list
+$ confluent local services connect stop
+$ confluent local services connect start
+$ confluent local services connect plugin list
+
+## applying altibase jdbc driver
+> https://docs.confluent.io/kafka-connectors/jdbc/current/jdbc-drivers.html
+1. Find the JDBC 4.0 driver JAR file for each database system that will be used.
+2. Place the JAR files into the share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib directory in your Confluent Platform installation on each worker node.
+3. Restart all of the Connect worker nodes.
+$ cp Altibase.jar $CONFLUENT_HOME/share/java/kafka
+$ confluent local services connect stop
+$ confluent local services connect start
+
+
+###### AltibaseDatabaseDialect 포함한 새로운 kafka-connect-jdbc-xxx.jar 를 만들기 ######
+
+**** 기존의 하이버네이트 알티베이스 다이얼렉트 만드는 방법을 참고함.
+## AltibaseDatabaseDialect.java 포함한 새로운 kafka-connect-jdbc-10.7.3.jar 를 만들어서, 위 문제를 해결함...
+> kafka-connect-jdbc-10.7.3.jar 를 찾는다.
+$CONFLUENT_HOME/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib/kafka-connect-jdbc-10.7.3.jar
+> temp 디렉토리를 만들어, 이곳에 kafka-connect-jdbc-10.7.3.jar 화일을 복사한다.
+> jar화일을 푼다.
+$ jar xvf kafka-connect-jdbc-10.7.3.jar
+> io.confluent.connect.jdbc.dialect.DatabaseDialectProvider 화일을 찾아서 아래의 라인 추가한다.
+  - io.confluent.connect.jdbc.dialect.AltibaseDatabaseDialect$Provider
+> AltibaseDatabaseDialect.java : create & compile
+  - AltibaseDatabaseDialect.java (*** 뒤쪽에서 상세 기술함.)
+$ javac -d . -cp .:$CONFLUENT_HOME/share/java/kafka/*:$CONFLUENT_HOME/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib/* AltibaseDatabaseDialect.java
+> 아래 3개 화일이 생성됨.
+$ find -name 'Altibase*'
+./io/confluent/connect/jdbc/dialect/AltibaseDatabaseDialect$Provider.class
+./io/confluent/connect/jdbc/dialect/AltibaseDatabaseDialect$1.class
+./io/confluent/connect/jdbc/dialect/AltibaseDatabaseDialect.class
+./AltibaseDatabaseDialect.java
+> 생성한 java화일 지운다.
+rm AltibaseDatabaseDialect.java
+> create new jar
+jar -cvfm kafka-connect-jdbc-10.7.3.jar META-INF/MANIFEST.MF .
+> 기존것과 교체한다.
+
+
+###### JDBC source connector using query ######
+## prepare altibase table
+iSQL> 
+create sequence seq1;
+CREATE TABLE users (
+id INT default seq1.nextval PRIMARY KEY ,
+name VARCHAR(20)
+);
+insert into users (name) values ('Altibase');
+select * from users;
+
+
+## create altibase JDBC source connector using query
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-source-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-source-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "mode": "incrementing",
+        "incrementing.column.name": "ID",
+        "topic.prefix": "altibase-",
+        "query": "select id, name from sys.users",
+        "poll.interval.ms": 5000
+    }
+}'
+
+## check altibase source connector
+$ curl --location --request GET 'http://localhost:8083/connectors'
+$ curl -X GET "http://localhost:8083/connectors/altibase-source-connector/config"
+
+
+## running a consumer before insert a row in altibase
+$ kafka-console-consumer --topic altibase-USERS --bootstrap-server localhost:9092 --from-beginning
+
+## show topic list
+$ kafka-topics --list --bootstrap-server localhost:9092
+
+
+###### JDBC source connector using table.whitelist ######
+## create altibase JDBC source connector using table.whitelist
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-source-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-source-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "mode": "incrementing",
+        "incrementing.column.name": "ID",
+        "topic.prefix": "altibase-",
+        "table.whitelist": "USERS"
+    }
+}'
+
+## error 
+> cat /tmp/confluent.509217/connect/connect.stdout
+[2023-07-04 12:30:28,281] ERROR [altibase-source-connector|task-0] SQL exception while running query for table: TimestampIncrementingTableQuerier{table="mydb"."SYS"."USERS", query='null', topicPrefix='altibase-', incrementingColumn='ID', timestampColumns=[]}, java.sql.SQLException: SQL syntax error
+line 1: parse error
+SELECT * FROM "mydb"."SYS"."USERS" WHERE "mydb"."SYS"."USERS"."ID" > ? ORDER BY "mydb"."SYS"."USERS"."ID" ASC
+                          ^
+. Attempting retry 52 of -1 attempts. (io.confluent.connect.jdbc.source.JdbcSourceTask:455)
+
+## Kafka Connect Logging  
+Kafka Connect and other Confluent Platform components use the Java-based logging utility Apache Log4j to collect runtime data and record component events. The following table describes each log level. The Kafka Connect Log4j properties file is located in the Confluent Platform installation directory path etc/kafka/connect-log4j.properties.
+ 
+## error cause
+> Kafka Connect Log4j 로깅레벨을 설정하여, trace log 화일을 이용해서 문제원인을 추적함.
+> Altibase JDBC DatabaseMetaData.getTables(...) 함수에서 TABLE_CAT 로  "mydb"를 리턴해서 발생하는 문제임.
+> PostgreSQL에서는 위 함수에서 TABLE_CAT 로  NULL을 리턴해서 문제가 없음.
+ 
+
+
+
+###### JDBC sink connector using insert.mode=insert ######
+
+## show topic description
+$ kafka-topics  --describe --topic altibase-USERS --bootstrap-server localhost:9092
+Topic: altibase-USERS	TopicId: R4Tc7PefSMiEg_z-ajhVjw	PartitionCount: 1	ReplicationFactor: 1	Configs: 
+	Topic: altibase-USERS	Partition: 0	Leader: 0	Replicas: 0	Isr: 0	Offline: 
+
+CREATE TABLE "test-altibase-USERS" (
+id INT default seq1.nextval PRIMARY KEY ,
+name VARCHAR(20)
+);
+
+## create altibase JDBC sink connector using insert.mode=insert
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-sink-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-sink-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "insert.mode": "insert",
+        "table.name.format": "test-${topic}",
+        "topics": "altibase-USERS"
+    }
+}'
+
+## check using trace log
+INSERT INTO "test-altibase-USERS"("ID","NAME") VALUES(?,?)
+
+## check target table
+iSQL> select * from "test-altibase-USERS";
+
+
+
+###### JDBC sink connector using insert.mode=upsert ######
+
+## Important
+When loading data from different topics into different tables every pk.fields value must exist in every topic–that is, if multiple topics have their own primary key. If not, you must create distinct connector configurations.
+*** PK가 테이블별로 틀리다면, 테이블별로 아래의 sink-connector 들을 별도로 만들어 주어야 한다. ***
+
+## create altibase sink connector using insert.mode=upsert
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-sink-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-sink-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "insert.mode": "upsert",
+        "pk.mode": "record_value",
+        "pk.fields": "ID",
+        "table.name.format": "test-${topic}",
+        "topics": "altibase-USERS"
+    }
+}'
+
+## check using trace log
+merge into "test-altibase-USERS" using (select ? "ID", ? "NAME" FROM dual) incoming on("test-altibase-USERS"."ID"=incoming."ID") 
+when matched then update set "test-altibase-USERS"."NAME"=incoming."NAME" 
+when not matched then insert("test-altibase-USERS"."NAME","test-altibase-USERS"."ID") values(incoming."NAME",incoming."ID")
+;
+
+## ERROR-0x3123B : Invalid use of host variables
+0x3123B ( 201275) qpERR_ABORT_QMV_NOT_ALLOWED_HOSTVAR Invalid use of host variables <0%s>
+Cause: A host variable was misused.
+Action: Set the specified data type using a CAST operator.
+*** 알티베이스는 select target 절에, 호스트변수를 쓸려면, cast를 해야한다... ***** 이거 뭐 할때마다 걸린다... ***제품개선 1순위***
+*** 위의 경우 (select case(? as varchar(20)) "ID", case(? as int) "NAME" FROM dual) 요렇게 바뀌어야 한다.
+*** 위와같이 변경을 해주어도, cast()에서 LOB을 지원하지 않으므로, insert.mode=upsert 방식에서는 알티베이스는 LOB은 지원할수 없음.
+*** 나중에 시간나면 고쳐보기로 하고, 현재로써는 이대로 둡니다.
+*** 아래는 나중에 고칠때, 참고하기 위한 사항입니다.
+*** TableDefinitions.java 에서, trace log에 db data-type을 찍어주는 부분임...
+INFO [altibase-sink-connector|task-0] Setting metadata for table "test-altibase-USERS" to Table{name='"test-altibase-USERS"', type=TABLE columns=[Column{'ID', isPrimaryKey=false, allowsNull=false, sqlType=INTEGER}, Column{'NAME', isPrimaryKey=false, allowsNull=true, sqlType=VARCHAR}]} (io.confluent.connect.jdbc.util.TableDefinitions:64)
+*** TableDefinitions.java 에서, JDBC 호출하는 함수 
+******Altibase JDBC... connection.getMetaData().getColumns(...)
+******./src/main/java/Altibase/jdbc/driver/AltibaseDatabaseMetaData.java
+
