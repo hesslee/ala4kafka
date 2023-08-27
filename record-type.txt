@@ -1,3 +1,5 @@
+#### table에 대소문자만 틀린 컬럼이 존재할때, recordtype 에러 발생
+
 drop table "tT";
 CREATE TABLE "tT" (
 "t" int,
@@ -27,6 +29,40 @@ BEGIN
     r1."t" := 10;
 END;
 /
+
+####################################################################################################
+#### DML 외부에서, recordtype의 column에 쌍따옴표를 하는것은 괜찮긴 한데, 대소문자를 가리지 않고 처리함.
+#### DML에서 recordtype의 column에 쌍따옴표를 하면 에러 발생
+
+drop table "tT";
+CREATE TABLE "tT" (
+"t" int
+);
+
+
+CREATE OR REPLACE PROCEDURE proc1
+AS
+    r1 "tT"%ROWTYPE;
+BEGIN
+    r1.t := 10;
+    r1.T := 20;
+    r1."t" := 30;
+    r1."T" := 40;
+
+ INSERT INTO "tT" VALUES r1;   
+update "tT" set "t" = r1."t" * 10 where "t" = r1."t" ;
+END;
+/
+
+iSQL> exec proc1;
+[ERR-31001 : SQL syntax error
+
+line 1: parse error
+update "tT" set "t" = :B0" * 10 where "t" = :B0" ;
+                         ^            ^
+
+
+at "SYS.PROC1", line 11]
 
 [ERR-31182 : Duplicate column name
 
