@@ -1,0 +1,35 @@
+drop table "tT";
+CREATE TABLE "tT" (
+"t" int,
+"T" int
+);
+
+
+CREATE OR REPLACE PROCEDURE proc1
+AS
+    r1 "tT"%ROWTYPE;
+BEGIN
+    r1.t := 10;
+END;
+/
+
+[ERR-31182 : Duplicate column name
+
+In procedure SYS.PROC1
+0005 :     R1.T := 10;
+          ^   ^
+]
+
+CREATE OR REPLACE PROCEDURE proc1
+AS
+    r1 "tT"%ROWTYPE;
+BEGIN
+    r1."t" := 10;
+END;
+/
+
+[ERR-31182 : Duplicate column name
+
+In procedure SYS.PROC1
+0005 :     R1."t" := 10;
+          ^    ^
