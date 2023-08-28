@@ -34,7 +34,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
 
 $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  purchases   --bootstrap-server localhost:9092
-$ kafka-topics --create --topic  purchases   --bootstrap-server localhost:9092
+$ kafka-topics --create --topic  PURCHASES   --bootstrap-server localhost:9092
 $ kafka-topics  --describe --topic purchases --bootstrap-server localhost:9092
 $ kafka-console-consumer --topic purchases --bootstrap-server localhost:9092 --from-beginning
 $ kafka-console-consumer --topic ALTIBASE_USER --bootstrap-server localhost:9092 --from-beginning
@@ -68,7 +68,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "key.converter.schemas.enable": true,
         "value.converter.schemas.enable": true,
         "table.name.format": "TEST_${topic}",
-        "topics": "purchases"
+        "topics": "PURCHASES"
     }
 }'
 
