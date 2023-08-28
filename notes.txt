@@ -24,18 +24,20 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
         "connection.user": "sys",
         "connection.password": "manager",
+        "quote.sql.identifiers": "NEVER",
         "mode": "incrementing",
         "incrementing.column.name": "ID",
-        "topic.prefix": "altibase-",
-        "query": "select id, name, age, gender from sys.users",
-        "poll.interval.ms": 5000
+        "topic.prefix": "ALTIBASE_",
+        "table.whitelist": "USER"
     }
 }'
 
+$ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  purchases   --bootstrap-server localhost:9092
 $ kafka-topics --create --topic  purchases   --bootstrap-server localhost:9092
 $ kafka-topics  --describe --topic purchases --bootstrap-server localhost:9092
 $ kafka-console-consumer --topic purchases --bootstrap-server localhost:9092 --from-beginning
+$ kafka-console-consumer --topic ALTIBASE_USER --bootstrap-server localhost:9092 --from-beginning
 
 drop table "test-purchases";
 CREATE TABLE "test-purchases" (
@@ -55,18 +57,40 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
         "tasks.max": "1",
         "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
-        "connection.user": "sys",
-        "connection.password": "manager",
-        "insert.mode": "insert",
-        "table.name.format": "test-${topic}",
+        "connection.user": "SYS",
+        "connection.password": "MANAGER",
+        "quote.sql.identifiers": "NEVER",
+        "insert.mode": "upsert",
+        "pk.mode": "record_value",
+        "pk.fields": "C1",
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",
         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
         "key.converter.schemas.enable": true,
         "value.converter.schemas.enable": true,
-        "topics": "purchases"
+        "table.name.format": "TEST_${topic}",
+        "topics": "PURCHASES"
     }
 }'
 
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-sink-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "sys",
+        "connection.password": "manager",
+        "quote.sql.identifiers": "NEVER",
+        "insert.mode": "upsert",
+        "pk.mode": "record_value",
+        "pk.fields": "ID",
+        "table.name.format": "TEST_${topic}",
+        "topics": "ALTIBASE_USER"
+    }
+}'
 
 #### key part
 {
