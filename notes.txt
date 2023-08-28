@@ -60,23 +60,22 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "connection.user": "SYS",
         "connection.password": "MANAGER",
         "quote.sql.identifiers": "NEVER",
+        "delete.enabled": true,
         "insert.mode": "upsert",
-        "pk.mode": "record_value",
-        "pk.fields": "C1",
+        "pk.mode": "record_key",
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",
         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "key.converter.schemas.enable": true,
-        "value.converter.schemas.enable": true,
         "table.name.format": "TEST_${topic}",
         "topics": "PURCHASES"
     }
 }'
 
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-sink-connector2"
 $ curl --location --request POST 'http://localhost:8083/connectors' \
 --header 'Content-Type: application/json' \
 --data-raw '
 {
-    "name": "altibase-sink-connector",
+    "name": "altibase-sink-connector2",
     "config": {
         "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
         "tasks.max": "1",
@@ -85,8 +84,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "connection.password": "manager",
         "quote.sql.identifiers": "NEVER",
         "insert.mode": "upsert",
-        "pk.mode": "record_value",
-        "pk.fields": "ID",
+        "pk.mode": "record_key",
         "table.name.format": "TEST_${topic}",
         "topics": "ALTIBASE_USER"
     }
