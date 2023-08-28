@@ -57,7 +57,7 @@ int main (int argc, char **argv) {
     // Configuration object is now owned, and freed, by the rd_kafka_t instance.
     conf = NULL;
 
-    const char *topic = "purchases";
+    const char *topic = "PURCHASES";
 
     cJSON *rootK = cJSON_CreateObject();
 
@@ -74,7 +74,7 @@ int main (int argc, char **argv) {
     cJSON *c1K = cJSON_CreateObject();
     cJSON_AddStringToObject(c1K, "type", "int32");
     cJSON_AddBoolToObject(c1K, "optional", cJSON_False);
-    cJSON_AddStringToObject(c1K, "field", "c1");
+    cJSON_AddStringToObject(c1K, "field", "C1");
     cJSON_AddItemToArray(fieldsK, c1K);
 
     // Add the fields array to the schema object
@@ -85,7 +85,7 @@ int main (int argc, char **argv) {
 
     // Create the payload object
     cJSON *payloadK = cJSON_CreateObject();
-    cJSON_AddNumberToObject(payloadK, "c1", 42);
+    cJSON_AddNumberToObject(payloadK, "C1", 42);
 
     // Add the payload object to the root object
     cJSON_AddItemToObject(rootK, "payload", payloadK);
@@ -108,19 +108,19 @@ int main (int argc, char **argv) {
     cJSON *c1 = cJSON_CreateObject();
     cJSON_AddStringToObject(c1, "type", "int32");
     cJSON_AddBoolToObject(c1, "optional", cJSON_False);
-    cJSON_AddStringToObject(c1, "field", "c1");
+    cJSON_AddStringToObject(c1, "field", "C1");
     cJSON_AddItemToArray(fields, c1);
 
     cJSON *c2 = cJSON_CreateObject();
     cJSON_AddStringToObject(c2, "type", "string");
     cJSON_AddBoolToObject(c2, "optional", cJSON_False);
-    cJSON_AddStringToObject(c2, "field", "c2");
+    cJSON_AddStringToObject(c2, "field", "C2");
     cJSON_AddItemToArray(fields, c2);
 
     cJSON *c3 = cJSON_CreateObject();
     cJSON_AddStringToObject(c3, "type", "int32");
     cJSON_AddBoolToObject(c3, "optional", cJSON_False);
-    cJSON_AddStringToObject(c3, "field", "c3");
+    cJSON_AddStringToObject(c3, "field", "C3");
     cJSON_AddItemToArray(fields, c3);
 
     // Add the fields array to the schema object
@@ -131,9 +131,9 @@ int main (int argc, char **argv) {
 
     // Create the payload object
     cJSON *payload = cJSON_CreateObject();
-    cJSON_AddNumberToObject(payload, "c1", 42);
-    cJSON_AddStringToObject(payload, "c2", "Hello, world!");
-    cJSON_AddNumberToObject(payload, "c3", 123);
+    cJSON_AddNumberToObject(payload, "C1", 42);
+    cJSON_AddStringToObject(payload, "C2", "Hello, world!");
+    cJSON_AddNumberToObject(payload, "C3", 123);
 
     // Add the payload object to the root object
     cJSON_AddItemToObject(root, "payload", payload);
