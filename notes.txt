@@ -68,7 +68,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "key.converter.schemas.enable": true,
         "value.converter.schemas.enable": true,
         "table.name.format": "TEST_${topic}",
-        "topics": "PURCHASES"
+        "topics": "purchases"
     }
 }'
 
