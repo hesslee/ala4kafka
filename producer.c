@@ -105,12 +105,13 @@ int main (int argc, char **argv) {
     cJSON *fields = cJSON_CreateArray();
 
     // Create the field objects and add them to the fields array
+    /*
     cJSON *c1 = cJSON_CreateObject();
     cJSON_AddStringToObject(c1, "type", "int32");
     cJSON_AddBoolToObject(c1, "optional", cJSON_False);
     cJSON_AddStringToObject(c1, "field", "C1");
     cJSON_AddItemToArray(fields, c1);
-
+    */
     cJSON *c2 = cJSON_CreateObject();
     cJSON_AddStringToObject(c2, "type", "string");
     cJSON_AddBoolToObject(c2, "optional", cJSON_False);
@@ -131,7 +132,7 @@ int main (int argc, char **argv) {
 
     // Create the payload object
     cJSON *payload = cJSON_CreateObject();
-    cJSON_AddNumberToObject(payload, "C1", 42);
+    //cJSON_AddNumberToObject(payload, "C1", 42);
     cJSON_AddStringToObject(payload, "C2", "Hello, world!");
     cJSON_AddNumberToObject(payload, "C3", 123);
 
