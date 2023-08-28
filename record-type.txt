@@ -30,6 +30,11 @@ BEGIN
 END;
 /
 
+[ERR-31182 : Duplicate column name
+
+In procedure SYS.PROC1
+0005 :     R1."t" := 10;
+          ^    ^
 ####################################################################################################
 #### DML 외부에서, recordtype의 column에 쌍따옴표를 하는것은 괜찮긴 한데, 대소문자를 가리지 않고 처리함.
 #### DML에서 recordtype의 column에 쌍따옴표를 하면 에러 발생
@@ -60,8 +65,6 @@ iSQL> exec proc1;
 line 1: parse error
 update "tT" set "t" = :B0" * 10 where "t" = :B0" ;
                          ^            ^
-
-
 at "SYS.PROC1", line 11]
 
 [ERR-31182 : Duplicate column name
