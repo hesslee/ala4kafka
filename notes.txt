@@ -36,7 +36,7 @@ $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  purchases   --bootstrap-server localhost:9092
 $ kafka-topics --create --topic  PURCHASES   --bootstrap-server localhost:9092
 $ kafka-topics  --describe --topic purchases --bootstrap-server localhost:9092
-$ kafka-console-consumer --topic purchases --bootstrap-server localhost:9092 --from-beginning
+$ kafka-console-consumer --topic PURCHASES --bootstrap-server localhost:9092 --from-beginning
 $ kafka-console-consumer --topic ALTIBASE_USER --bootstrap-server localhost:9092 --from-beginning
 
 drop table "test-purchases";
