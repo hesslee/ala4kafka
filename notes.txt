@@ -39,11 +39,13 @@ $ kafka-topics  --describe --topic purchases --bootstrap-server localhost:9092
 $ kafka-console-consumer --topic PURCHASES --bootstrap-server localhost:9092 --from-beginning
 $ kafka-console-consumer --topic ALTIBASE_USER --bootstrap-server localhost:9092 --from-beginning
 
-drop table "test-purchases";
-CREATE TABLE "test-purchases" (
-"c1" INT PRIMARY KEY ,
-"c2" VARCHAR(20),
-"c3" int
+> 이전 타임쉬트에 기술한 매 레코드마다, JSON 내부에 schema도 같이 저장하는 방식으로 아래와 같은 설정으로 정상동작함을 확인 하였습니다.
+
+drop table test_purchases;
+CREATE TABLE test_purchases (
+c1 INT PRIMARY KEY ,
+c2 VARCHAR(20),
+c3 int
 );
 
 $ curl -X GET "http://localhost:8083/connectors/altibase-sink-connector/config"
@@ -90,6 +92,19 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
     }
 }'
 
+$ curl -X GET http://localhost:8081/subjects
+$ curl -X GET http://localhost:8081/subjects/ALTIBASE_USER-value/versions/1
+
+> kafka connect 의 기본방식은 schema registry를 이용하고, avro 형식으로 topic에 저장하는 것임을 확인하였습니다.
+> 일단은 schema registry에 접근하는 C API를 못찾았고, 또한, schema registry와 상호작용하는 방식도 나름의 복잡도 또는 성능 문제도 있을수 있을것 같습니다.
+> 다른 방안은 매 레코드마다, JSON 내부에 schema도 같이 저장하는 방식입니다. 이것은 매 레코드의 크기가 커지는 문제가 있긴 합니다.
+> 그렇지만, 성능 병목이 여기서 생기는 것은 아니고, 실제 DBMS에 apply 하는 곳에서 발생하므로, 
+> 일단, 매 레코드마다, JSON 내부에 schema도 같이 저장하는 방식으로 진행해 봅니다.
+
+> 아래와 같은 형태로 JSON string을 key와 value에 대하여 각각 만들어야 합니다.
+> 예제 테이블: CREATE TABLE purchases (c1 INT PRIMARY KEY, c2 VARCHAR(20), c3 int);
+> 예제 JSON:
+
 #### key part
 {
   "schema": {
@@ -98,14 +113,14 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
       {
         "type": "int32",
         "optional": false,
-        "field": "c1"
+        "field": "C1"
       }
     ],
     "optional": false,
     "name": "key"
   },
   "payload": {
-    "c1": 42
+    "C1": 42
   }
 }
 
@@ -116,37 +131,25 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
     "type": "struct",
     "fields": [
       {
-        "type": "int32",
-        "optional": false,
-        "field": "c1"
-      },
-      {
         "type": "string",
         "optional": false,
-        "field": "c2"
+        "field": "C2"
       },
       {
         "type": "int32",
         "optional": false,
-        "field": "c3"
+        "field": "C3"
       }
     ],
     "optional": false,
     "name": "value"
   },
   "payload": {
-    "c1": 42,
-    "c2": "Hello, world!",
-    "c3": 123
+    "C2": "Hello, world!",
+    "C3": 123
   }
 }
 
-
-
-set vertical on;
-select * from "test-purchases";
-iSQL> select * from "test-purchases";
-c1          c2                    c3
 --------------------------------------------------
 42          Hello, world!         123
 1 row selected.
