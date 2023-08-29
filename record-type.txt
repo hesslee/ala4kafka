@@ -66,9 +66,3 @@ line 1: parse error
 update "tT" set "t" = :B0" * 10 where "t" = :B0" ;
                          ^            ^
 at "SYS.PROC1", line 11]
-
-[ERR-31182 : Duplicate column name
-
-In procedure SYS.PROC1
-0005 :     R1."t" := 10;
-          ^    ^
