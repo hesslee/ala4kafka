@@ -1,3 +1,18 @@
+drop table purchases;
+CREATE TABLE purchases (
+c1 INT PRIMARY KEY ,
+c2 VARCHAR(20),
+c3 int
+);
+drop table test_purchases;
+CREATE TABLE test_purchases (
+c1 INT PRIMARY KEY ,
+c2 VARCHAR(20),
+c3 int
+);
+CREATE REPLICATION ALA1 FOR ANALYSIS WITH '127.0.0.1', 47146 FROM sys.purchases TO sys.purchases;
+ALTER REPLICATION ALA1 START;
+
 drop sequence seq1;
 create sequence seq1;
 drop TABLE users;
