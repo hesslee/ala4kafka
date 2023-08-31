@@ -377,7 +377,9 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
             return ALA_FAILURE;
         }
 
+        mytest(sTable, aXLog);
         /* Get Altibase SQL from XLog */
+        /******
         memset(sQuery, 0x00, QUERY_SIZE);
         if(ALA_GetAltibaseSQL(sTable, aXLog, QUERY_SIZE, (signed char *)sQuery, aErrorMgr)
            != ALA_SUCCESS)
@@ -385,6 +387,7 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
             printAlaErr(aErrorMgr);
             return ALA_FAILURE;
         }
+        ******/
 
         /* In order to Apply Implicit Savepoint to Altibase DBMS,
          * '$' characters of Savepoint's Name has to be changed.
@@ -417,6 +420,72 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
     return ALA_SUCCESS;
 }
 
+void mytest(ALA_Table * aTable, ALA_XLog * aXLog)
+{
+    ALA_Column * sColumn;
+    SChar        sBuffer[1024];
+    UInt         sPKColumnPos;
+    UInt         sColumnPos;
+
+    switch (aXLog->mHeader.mType)
+    {
+        case XLOG_TYPE_INSERT :
+            printf("insert\n");
+            break;
+
+        case XLOG_TYPE_UPDATE :
+            printf("update\n");
+            break;
+
+        case XLOG_TYPE_DELETE :
+            printf("delete\n");
+            break;
+
+        default :
+            printf("etc[%d]\n",aXLog->mHeader.mType);
+            break;
+    }
+
+/* Primary Key Column 처리 */
+for(sPKColumnPos = 0;
+sPKColumnPos < aXLog->mPrimaryKey.mPKColCnt;
+sPKColumnPos++)
+{
+/* XLog의 Primary Key 순서와 Table의 Primary Key 순서는 동일 */
+sColumn = aTable->mPKColumnArray[sPKColumnPos];
+
+/* Altibase Text 얻기 */
+(void)ALA_GetAltibaseText(sColumn,
+&(aXLog->mPrimaryKey.mPKColArray[sPKColumnPos]),
+1024,
+sBuffer,
+NULL);
+}
+
+/* Column 처리 */
+for(sColumnPos = 0; sColumnPos < aXLog->mColumn.mColCnt; sColumnPos++)
+{
+/* Column 정보 얻기 */
+(void)ALA_GetColumnInfo(aTable,
+aXLog->mColumn.mCIDArray[sColumnPos],
+&sColumn,
+NULL);
+
+/* Before Image의 Altibase Text 얻기 */
+(void)ALA_GetAltibaseText(sColumn,
+&(aXLog->mColumn.mBColArray[sColumnPos]),
+1024,
+sBuffer,
+NULL);
+
+/* After Image의 Altibase Text 얻기 */
+(void)ALA_GetAltibaseText(sColumn,
+&(aXLog->mColumn.mAColArray[sColumnPos]),
+1024,
+sBuffer,
+NULL);
+}
+}
 void printSqlErr(SQLHDBC aDbc, SQLHSTMT aStmt)
 {
     SQLINTEGER  errNo;
