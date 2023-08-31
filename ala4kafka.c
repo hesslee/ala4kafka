@@ -14,7 +14,6 @@
 #include <alaAPI.h>
 
 /* User-specific Definitions */
-#define QUERY_SIZE      (4196)          /* SQL Query Buffer Size */
 #define ALA_LOG_FILE    "ALA1.log"      /* Log File Name */
 #define ALA_NAME        "ALA1"          /* XLog Sender Name */
 #define SOCKET_TYPE     "TCP"           /* TCP or UNIX */
@@ -30,14 +29,8 @@ ALA_RC runXLogCollector(ALA_Handle, ALA_ErrorMgr *);
 ALA_RC applyXLogToAltibase(ALA_Handle, ALA_XLog *, ALA_ErrorMgr *);
 
 /* Print error to console */
-void   printSqlErr(SQLHDBC, SQLHSTMT);
 void   printAlaErr(ALA_ErrorMgr * aErrorMgr);
 void mytest(ALA_Table * aTable, ALA_XLog * aXLog);
-
-/* ODBC variables */
-SQLHENV     gEnv;
-SQLHDBC     gDbc;
-SQLHSTMT    gStmt;
 
 /* Start function */
 int main(void)
@@ -45,46 +38,7 @@ int main(void)
     ALA_Handle      sHandle;            /* XLog Collector Handle */
     ALA_ErrorMgr    sErrorMgr;          /* Error Manager */
     char            sSocketInfo[128];   /* XLog Sender/Collector Socket Information */
-    SQLCHAR         sConInfo[128];      /* ODBC Connection Information */
     unsigned int    sStep = 0;
-
-    /**************************************************************************
-     * Altibase ODBC Initialization                                           *
-     **************************************************************************/
-
-    /* If you call SQLAllocEnv() that is included in Altibase ODBC,
-     * you have to set ALA_TRUE to the first parameter when you call ALA_IntializeAPI()
-     */
-    if(SQLAllocEnv(&gEnv) != SQL_SUCCESS)
-    {
-        goto FINALYZE;
-    }
-    sStep = 1;
-
-    if(SQLAllocConnect(gEnv, &gDbc) != SQL_SUCCESS)
-    {
-        goto FINALYZE;
-    }
-    sStep = 2;
-
-    memset(sConInfo, 0x00, 128);
-    sprintf((char *)sConInfo, "DSN=%s;UID=SYS;PWD=MANAGER;PORT_NO=%d", SLAVE_IP, SLAVE_PORT);
-
-    if(SQLDriverConnect(gDbc, NULL, sConInfo, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT)
-            != SQL_SUCCESS)
-    {
-        printSqlErr(gDbc, gStmt);
-        goto FINALYZE;
-    }
-    sStep = 3;
-
-    /* Autocommit OFF */
-    if(SQLSetConnectAttr(gDbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0)
-            != SQL_SUCCESS)
-    {
-        printSqlErr(gDbc, gStmt);
-        goto FINALYZE;
-    }
 
     /**************************************************************************
      * ALA Initialization                                                     *
@@ -168,15 +122,6 @@ int main(void)
         case 4:
             /* Destroy ALA API environment */
             (void)ALA_DestroyAPI(ALA_TRUE, &sErrorMgr);
-
-        case 3:
-            (void)SQLDisconnect(gDbc);
-
-        case 2:
-            (void)SQLFreeConnect(gDbc);
-
-        case 1:
-            (void)SQLFreeEnv(gEnv);
 
         default:
             break;
@@ -329,10 +274,6 @@ ALA_RC runXLogCollector(ALA_Handle aHandle, ALA_ErrorMgr * aErrorMgr)
                 }
             }   /* else */
         }   /* while */
-
-        /* Rollback Current Transaction */
-        (void)SQLEndTran(SQL_HANDLE_DBC, gDbc, SQL_ROLLBACK);
-
     }   /* while */
 
     return ALA_SUCCESS;
@@ -342,8 +283,6 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
 {
     ALA_Table      * sTable = NULL;
     ALA_XLogHeader * sXLogHeader = NULL;
-    char             sQuery[QUERY_SIZE];
-    char           * sImplictSPPos;
 
     /* Get XLog Header */
     (void)ALA_GetXLogHeader(aXLog,
@@ -353,19 +292,18 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
     /* if COMMIT XLog, then Commit Current Transaction */
     if(sXLogHeader->mType == XLOG_TYPE_COMMIT)
     {
-        (void)SQLEndTran(SQL_HANDLE_DBC, gDbc, SQL_COMMIT);
+        printf("commit\n");
     }
     /* if ABORT XLog, then Rollback Current Transaction */
     else if(sXLogHeader->mType == XLOG_TYPE_ABORT)
     {
-        (void)SQLEndTran(SQL_HANDLE_DBC, gDbc, SQL_ROLLBACK);
+        printf("abort\n");
     }
     /* if REPL_STOP XLog, then Rollback Current Transaction */
     else if(sXLogHeader->mType == XLOG_TYPE_REPL_STOP)
     {
-        (void)SQLEndTran(SQL_HANDLE_DBC, gDbc, SQL_ROLLBACK);
+        printf("repl_stop\n");
     }
-    /* etc. */
     else
     {
         /* Get Table Information */
@@ -379,43 +317,6 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
         }
 
         mytest(sTable, aXLog);
-        /* Get Altibase SQL from XLog */
-        /******
-        memset(sQuery, 0x00, QUERY_SIZE);
-        if(ALA_GetAltibaseSQL(sTable, aXLog, QUERY_SIZE, (signed char *)sQuery, aErrorMgr)
-           != ALA_SUCCESS)
-        {
-            printAlaErr(aErrorMgr);
-            return ALA_FAILURE;
-        }
-        ******/
-
-        /* In order to Apply Implicit Savepoint to Altibase DBMS,
-         * '$' characters of Savepoint's Name has to be changed.
-         * Unused in Committed Transaction Only */
-        if((sXLogHeader->mType == XLOG_TYPE_SP_SET) ||
-           (sXLogHeader->mType == XLOG_TYPE_SP_ABORT))
-        {
-            while((sImplictSPPos = strchr(sQuery, '$')) != NULL)
-            {
-               *sImplictSPPos = '_';
-            }
-        }
-
-        /* Apply SQL to DBMS with ODBC */
-        if(SQLAllocStmt(gDbc, &gStmt) != SQL_SUCCESS)
-        {
-            return ALA_FAILURE;
-        }
-
-        if(SQLExecDirect(gStmt,  (SQLCHAR *)sQuery, SQL_NTS) != SQL_SUCCESS)
-        {
-            printSqlErr(gDbc, gStmt);
-            (void)SQLFreeStmt(gStmt, SQL_DROP);
-            return ALA_FAILURE;
-        }
-
-        (void)SQLFreeStmt(gStmt, SQL_DROP);
     }
 
     return ALA_SUCCESS;
@@ -444,6 +345,7 @@ void mytest(ALA_Table * aTable, ALA_XLog * aXLog)
 
         default :
             printf("etc[%d]\n",aXLog->mHeader.mType);
+            return;
             break;
     }
 
@@ -469,20 +371,6 @@ void mytest(ALA_Table * aTable, ALA_XLog * aXLog)
         /* After Image의 Altibase Text 얻기 */
         (void)ALA_GetAltibaseText(sColumn, &(aXLog->mColumn.mAColArray[sColumnPos]), 1024, sBuffer, NULL);
         printf("value[%s]\n", sBuffer);
-    }
-}
-void printSqlErr(SQLHDBC aDbc, SQLHSTMT aStmt)
-{
-    SQLINTEGER  errNo;
-    SQLSMALLINT msgLength;
-    SQLCHAR     errMsg[1024];
-
-    if(SQLError(SQL_NULL_HENV, aDbc, aStmt,
-                NULL, &errNo,
-                errMsg, sizeof(errMsg), &msgLength)
-            == SQL_SUCCESS)
-    {
-        printf("SQL Error : %d, %s\n", (int)errNo, (char *)errMsg);
     }
 }
 
