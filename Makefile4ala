@@ -6,9 +6,9 @@ LIBDIRS += $(LDROPT)$(ALTIBASE_HOME)/lib $(LDROPT).
 
 LIBS += $(LIBOPT)ala$(LIBAFT) $(LIBOPT)odbccli$(LIBAFT)
 
-SRCS=ReplToAltiSample.c
+SRCS=ala4kafka.c
 OBJS=$(SRCS:.c=.$(OBJEXT))
-        OUT=ReplToAltiSample$(BINEXT)
+        OUT=ala4kafka$(BINEXT)
 
 all: build
 
