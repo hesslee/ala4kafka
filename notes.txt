@@ -1,4 +1,4 @@
-
+ALA Error : 331818, Failed to accept link
 
 
 drop table purchases;
@@ -15,6 +15,7 @@ c3 int
 );
 CREATE REPLICATION ALA1 FOR ANALYSIS WITH '127.0.0.1', 47146 FROM sys.purchases TO sys.purchases;
 ALTER REPLICATION ALA1 START;
+drop REPLICATION ALA1;
 
 drop sequence seq1;
 create sequence seq1;
