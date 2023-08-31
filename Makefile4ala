@@ -8,14 +8,16 @@ LIBS += $(LIBOPT)ala$(LIBAFT) $(LIBOPT)odbccli$(LIBAFT)
 
 SRCS=ala4kafka.c
 OBJS=$(SRCS:.c=.$(OBJEXT))
-        OUT=ala4kafka$(BINEXT)
+OUT=ala4kafka$(BINEXT)
+
+.RECIPEPREFIX = >
 
 all: build
 
 build: $(OBJS)
-            $(LD) $(OBJS) $(LFLAGS) $(LDOUT)$(OUT) $(LIBS)
+> $(LD) $(OBJS) $(LFLAGS) $(LDOUT)$(OUT) $(LIBS)
 
 clean:
-        rm -f $(OUT)
-        rm -f $(OBJS)
-        rm -f *.res
+> rm -f $(OUT)
+> rm -f $(OBJS)
+> rm -f *.res
