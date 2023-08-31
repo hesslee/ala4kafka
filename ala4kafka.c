@@ -46,7 +46,7 @@ int main(void)
     (void)ALA_ClearErrorMgr(&sErrorMgr);
 
     /* Initialize ALA API environment */
-    if(ALA_InitializeAPI(ALA_TRUE, &sErrorMgr) != ALA_SUCCESS)
+    if(ALA_InitializeAPI(ALA_FALSE, &sErrorMgr) != ALA_SUCCESS)
     {
         printAlaErr(&sErrorMgr);
         goto FINALYZE;
