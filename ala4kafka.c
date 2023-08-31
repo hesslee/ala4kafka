@@ -19,8 +19,6 @@
 #define SOCKET_TYPE     "TCP"           /* TCP or UNIX */
 #define PEER_IP         "127.0.0.1"     /* TCP : XLog Sender IP */
 #define MY_PORT         (47146)         /* TCP : XLog Collector Listen Port */
-#define SLAVE_IP        "127.0.0.1"     /* ODBC : Target Altibase DBMS IP */
-#define SLAVE_PORT      (43146)         /* ODBC : Target Altibase DBMS Port */
 
 /* Get XLog from XLog Sender, after handshake with XLog Sender */
 ALA_RC runXLogCollector(ALA_Handle, ALA_ErrorMgr *);
