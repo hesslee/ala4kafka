@@ -347,6 +347,14 @@ void mytest(ALA_Table * aTable, ALA_XLog * aXLog)
             break;
     }
 
+    
+    for(sPKColumnPos = 0; sPKColumnPos < aTable->mPKColumnCount; sPKColumnPos++)
+    {
+        /* XLog의 Primary Key 순서와 Table의 Primary Key 순서는 동일 */
+        sColumn = aTable->mPKColumnArray[sPKColumnPos];
+        printf("table-pk[%s]\n", sColumn->mColumnName);
+    }
+    
     /* Primary Key Column 처리 */
     for(sPKColumnPos = 0; sPKColumnPos < aXLog->mPrimaryKey.mPKColCnt; sPKColumnPos++)
     {
