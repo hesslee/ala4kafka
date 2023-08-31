@@ -446,45 +446,29 @@ void mytest(ALA_Table * aTable, ALA_XLog * aXLog)
             break;
     }
 
-/* Primary Key Column 처리 */
-for(sPKColumnPos = 0;
-sPKColumnPos < aXLog->mPrimaryKey.mPKColCnt;
-sPKColumnPos++)
-{
-/* XLog의 Primary Key 순서와 Table의 Primary Key 순서는 동일 */
-sColumn = aTable->mPKColumnArray[sPKColumnPos];
-
-/* Altibase Text 얻기 */
-(void)ALA_GetAltibaseText(sColumn,
-&(aXLog->mPrimaryKey.mPKColArray[sPKColumnPos]),
-1024,
-sBuffer,
-NULL);
-}
-
-/* Column 처리 */
-for(sColumnPos = 0; sColumnPos < aXLog->mColumn.mColCnt; sColumnPos++)
-{
-/* Column 정보 얻기 */
-(void)ALA_GetColumnInfo(aTable,
-aXLog->mColumn.mCIDArray[sColumnPos],
-&sColumn,
-NULL);
-
-/* Before Image의 Altibase Text 얻기 */
-(void)ALA_GetAltibaseText(sColumn,
-&(aXLog->mColumn.mBColArray[sColumnPos]),
-1024,
-sBuffer,
-NULL);
-
-/* After Image의 Altibase Text 얻기 */
-(void)ALA_GetAltibaseText(sColumn,
-&(aXLog->mColumn.mAColArray[sColumnPos]),
-1024,
-sBuffer,
-NULL);
-}
+    /* Primary Key Column 처리 */
+    for(sPKColumnPos = 0; sPKColumnPos < aXLog->mPrimaryKey.mPKColCnt; sPKColumnPos++)
+    {
+        /* XLog의 Primary Key 순서와 Table의 Primary Key 순서는 동일 */
+        sColumn = aTable->mPKColumnArray[sPKColumnPos];
+        printf("pk[%s]\n", sColumn->mColumnName);
+        
+        /* Altibase Text 얻기 */
+        (void)ALA_GetAltibaseText(sColumn, &(aXLog->mPrimaryKey.mPKColArray[sPKColumnPos]), 1024, sBuffer, NULL);
+        printf("value[%s]\n", sBuffer);
+    }
+        
+    /* Column 처리 */
+    for(sColumnPos = 0; sColumnPos < aXLog->mColumn.mColCnt; sColumnPos++)
+    {
+        /* Column 정보 얻기 */
+        (void)ALA_GetColumnInfo(aTable, aXLog->mColumn.mCIDArray[sColumnPos], &sColumn, NULL);
+        printf("col[%s]\n", sColumn->mColumnName);
+        
+        /* After Image의 Altibase Text 얻기 */
+        (void)ALA_GetAltibaseText(sColumn, &(aXLog->mColumn.mAColArray[sColumnPos]), 1024, sBuffer, NULL);
+        printf("value[%s]\n", sBuffer);
+    }
 }
 void printSqlErr(SQLHDBC aDbc, SQLHSTMT aStmt)
 {
