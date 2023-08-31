@@ -32,6 +32,7 @@ ALA_RC applyXLogToAltibase(ALA_Handle, ALA_XLog *, ALA_ErrorMgr *);
 /* Print error to console */
 void   printSqlErr(SQLHDBC, SQLHSTMT);
 void   printAlaErr(ALA_ErrorMgr * aErrorMgr);
+void mytest(ALA_Table * aTable, ALA_XLog * aXLog);
 
 /* ODBC variables */
 SQLHENV     gEnv;
