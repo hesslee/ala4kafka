@@ -1,2 +1,31 @@
 create table k1 (
-c1 char(10) 
+cint INT PRIMARY KEY,
+cdouble double,
+creal real,
+cbigint bigint,
+csmallint smallint,
+cnumeric numeric,
+cnumericp numeric(10),
+cnumericps numeric(10,2),
+cdecimal decimal,
+cdecimalp decimal(10),
+cdecimalps decimal(10,2),
+cnumber number,
+cnumberp number(10),
+cnumberps number(10,2),
+cfloat float,
+cfloatp float(10),
+cchar char(10),
+cvarchar varchar(10),
+cnchar nchar(10),
+cnvarchar nvarchar(10),
+cblob blob,
+cclob clob,
+cbyte byte(10),
+cvarbyte varbyte(10),
+cnibble nibble(10),
+cbit bit(10),
+cvarbit varbit(10),
+cgeometry geometry);
+
+
