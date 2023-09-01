@@ -28,4 +28,23 @@ cbit bit(10),
 cvarbit varbit(10),
 cgeometry geometry);
 
-
+###### JDBC source connector using table.whitelist ######
+## create altibase JDBC source connector using table.whitelist
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-source-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-source-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "SYS",
+        "connection.password": "MANAGER",
+        "quote.sql.identifiers": "NEVER",
+        "mode": "incrementing",
+        "incrementing.column.name": "ID",
+        "table.whitelist": "K1"
+    }
+}'
