@@ -22,12 +22,12 @@ cnchar nchar(10),
 cnvarchar nvarchar(10),
 cblob blob,
 cclob clob,
-cbyte byte(10),
-cvarbyte varbyte(10),
-cnibble nibble(10),
+cbyte byte(10), ----------
+cvarbyte varbyte(10),-----------
+cnibble nibble(10),----------
 cbit bit(10),
-cvarbit varbit(10),
-cgeometry geometry);
+cvarbit varbit(10),------------
+cgeometry geometry);-----------
 
 insert into k1 (cint,cdouble) values(1,1.1);
 insert into k1 (cint,cdouble) values(2,2.2);
@@ -41,7 +41,7 @@ $ kafka-console-consumer --topic K1 --bootstrap-server localhost:9092 --from-beg
 
 ###### schema registry
 $ curl -X GET http://localhost:8081/subjects
-$ http://localhost:8081/subjects/RT_K1-value/versions/latest
+$ curl -X GET http://localhost:8081/subjects/RT_K1-value/versions/latest
 
 ###### JDBC source connector using table.whitelist ######
 ## create altibase JDBC source connector using table.whitelist
@@ -64,3 +64,26 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "table.whitelist": "K1"
     }
 }'
+
+{"subject":"RT_K1-value","version":1,"id":1,"schema":"{\"type\":\"record\",\"name\":\"K1\",\"fields\":[{\"name\":\"CINT\",\"type\":\"int\"},
+{\"name\":\"CDOUBLE\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CREAL\",\"type\":[\"null\",\"float\"],\"default\":null},
+{\"name\":\"CBIGINT\",\"type\":[\"null\",\"long\"],\"default\":null},
+{\"name\":\"CSMALLINT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int16\"}],\"default\":null},{\"name\":\"CNUMERIC\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":38,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"38\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMERICP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMERICPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMAL\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":38,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"38\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMALP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMALPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMBER\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CNUMBERP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMBERPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CFLOAT\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CFLOATP\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CCHAR\",\"type\":[\"null\",\"string\"],\"default\":null},
+{\"name\":\"CVARCHAR\",\"type\":[\"null\",\"string\"],\"default\":null},
+{\"name\":\"CNVARCHAR\",\"type\":[\"null\",\"string\"],\"default\":null},
+{\"name\":\"CBLOB\",\"type\":[\"null\",\"bytes\"],\"default\":null},
+{\"name\":\"CCLOB\",\"type\":[\"null\",\"string\"],\"default\":null},
+{\"name\":\"CBIT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int8\"}],\"default\":null}],
+\"connect.name\":\"K1\"}"}
