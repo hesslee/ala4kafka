@@ -12,9 +12,9 @@ CREATE OR REPLACE PROCEDURE proc1
 AS
     r1 test%ROWTYPE;
 BEGIN
-    r1.a := 1;
+    r1.a := 'abc';
     --r1.b := 777;
-    r1.c := '7777777';
+    r1.c := '999999';
 
 INSERT INTO test VALUES r1;   
 EXCEPTION
@@ -24,6 +24,8 @@ WHEN OTHERS THEN
 -- 200820 : Unable to insert (or update) NULL into NOT NULL column.
 if sqlcode in (69720, 201063, 200820) then
 update test set c = r1.c where a = r1.a ;
+else
+raise;
 end if;
 END;
 /
