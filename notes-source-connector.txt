@@ -29,6 +29,12 @@ cbit bit(10),
 cvarbit varbit(10),
 cgeometry geometry);
 
+$ kafka-topics --list   --bootstrap-server localhost:9092
+$ kafka-topics --delete --topic  K1   --bootstrap-server localhost:9092
+$ kafka-topics --create --topic  K1   --bootstrap-server localhost:9092
+$ kafka-topics  --describe --topic K1 --bootstrap-server localhost:9092
+$ kafka-console-consumer --topic K1 --bootstrap-server localhost:9092 --from-beginning
+
 ###### schema registry
 $ curl -X GET http://localhost:8081/subjects
 $ http://localhost:8081/subjects/K1/versions/latest
