@@ -1,68 +1,34 @@
 #### table에 대소문자만 틀린 컬럼이 존재할때, recordtype 에러 발생
 
-drop table "tT";
-CREATE TABLE "tT" (
-"t" int,
-"T" int
+drop table test;
+CREATE TABLE test (
+a int primary key,
+b int not null,
+c varchar(10),
+d date
 );
 
-
 CREATE OR REPLACE PROCEDURE proc1
 AS
-    r1 "tT"%ROWTYPE;
+    r1 test%ROWTYPE;
 BEGIN
-    r1.t := 10;
+    r1.a := 1;
+    --r1.b := 777;
+    r1.c := '7777777';
+
+INSERT INTO test VALUES r1;   
+EXCEPTION
+WHEN OTHERS THEN
+-- 69720  : The row already exists in a unique index.
+-- 201063 : Duplicate values in an index
+-- 200820 : Unable to insert (or update) NULL into NOT NULL column.
+if sqlcode in (69720, 201063, 200820) then
+update test set c = r1.c where a = r1.a ;
+end if;
 END;
 /
 
-[ERR-31182 : Duplicate column name
-
-In procedure SYS.PROC1
-0005 :     R1.T := 10;
-          ^   ^
-]
-
-CREATE OR REPLACE PROCEDURE proc1
-AS
-    r1 "tT"%ROWTYPE;
-BEGIN
-    r1."t" := 10;
-END;
-/
-
-[ERR-31182 : Duplicate column name
-
-In procedure SYS.PROC1
-0005 :     R1."t" := 10;
-          ^    ^
-####################################################################################################
-#### DML 외부에서, recordtype의 column에 쌍따옴표를 하는것은 괜찮긴 한데, 대소문자를 가리지 않고 처리함.
-#### DML에서 recordtype의 column에 쌍따옴표를 하면 에러 발생
-
-drop table "tT";
-CREATE TABLE "tT" (
-"t" int
-);
-
-
-CREATE OR REPLACE PROCEDURE proc1
-AS
-    r1 "tT"%ROWTYPE;
-BEGIN
-    r1.t := 10;
-    r1.T := 20;
-    r1."t" := 30;
-    r1."T" := 40;
-
- INSERT INTO "tT" VALUES r1;   
-update "tT" set "t" = r1."t" * 10 where "t" = r1."t" ;
-END;
-/
-
-iSQL> exec proc1;
-[ERR-31001 : SQL syntax error
-
-line 1: parse error
-update "tT" set "t" = :B0" * 10 where "t" = :B0" ;
-                         ^            ^
-at "SYS.PROC1", line 11]
+exec proc1;
+select * from test;
+[ERR-31074(200820) : Unable to insert (or update) NULL into NOT NULL column. : B
+[ERR-11058 : The row already exists in a unique index.
