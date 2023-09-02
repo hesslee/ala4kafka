@@ -41,7 +41,7 @@ $ kafka-console-consumer --topic K1 --bootstrap-server localhost:9092 --from-beg
 
 ###### schema registry
 $ curl -X GET http://localhost:8081/subjects
-$ http://localhost:8081/subjects/K1/versions/latest
+$ http://localhost:8081/subjects/RT_K1-value/versions/latest
 
 ###### JDBC source connector using table.whitelist ######
 ## create altibase JDBC source connector using table.whitelist
