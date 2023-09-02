@@ -29,6 +29,10 @@ cbit bit(10),
 cvarbit varbit(10),
 cgeometry geometry);
 
+insert into k1 (cint,cdouble) values(1,1.1);
+insert into k1 (cint,cdouble) values(2,2.2);
+select cint,cdouble from k1;
+
 $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  K1   --bootstrap-server localhost:9092
 $ kafka-topics --create --topic  K1   --bootstrap-server localhost:9092
@@ -56,6 +60,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "quote.sql.identifiers": "NEVER",
         "mode": "incrementing",
         "incrementing.column.name": "CINT",
+        "topic.prefix": "RT_",
         "table.whitelist": "K1"
     }
 }'
