@@ -112,7 +112,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
 }'
 
 $ curl -X GET http://localhost:8081/subjects
-$ curl -X GET http://localhost:8081/subjects/ALTIBASE_USER-value/versions/1
+$ curl -X GET http://localhost:8081/subjects/ALTIBASE_USER-value/versions/latest
 
 > kafka connect 의 기본방식은 schema registry를 이용하고, avro 형식으로 topic에 저장하는 것임을 확인하였습니다.
 > 일단은 schema registry에 접근하는 C API를 못찾았고, 또한, schema registry와 상호작용하는 방식도 나름의 복잡도 또는 성능 문제도 있을수 있을것 같습니다.
