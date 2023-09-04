@@ -67,8 +67,8 @@ CCLOB                                40   CLOB            clob    2005(!) mappin
 CBYTE                             20001   BYTE(10)        binary    -2(!)------------------------
 CVARBYTE                          20003   VARBYTE(10)     varbinary -3(!)------------------------
 CNIBBLE                           20002   NIBBLE(10)      binary    -2(!)------------------------
-CBIT                                 -7   BIT(10)         FIXED
-CVARBIT                            -100   VARBIT(10)      FIXED------------------------
+CBIT                                 -7   BIT(10)         binary    -2(!) mapping OK
+CVARBIT                            -100   VARBIT(10)      binary    -2(!)------------------------
 CGEOMETRY                         10003   GEOMETRY(32000) varbinary -3(!)------------------------
 ------------------------------------------------------------------------------
 
