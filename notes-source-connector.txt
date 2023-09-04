@@ -39,37 +39,43 @@ java.sql.Types
  public static final int VARBINARY -3 
  public static final int VARCHAR 12 
 
+set linesize 200;
+select c.column_name, c.data_type from system_.sys_columns_ c, system_.sys_tables_ t where c.table_id = t.table_id and t.table_name = 'K1' order by c.column_order;
+select type_name, data_type from x$datatype;
+
 ------------------------------------------------------------------------------
-NAME                                     TYPE             java.sql.Types
+NAME                    TYPE             java.sql.Types
 ------------------------------------------------------------------------------
-CINT                                 4    INTEGER         integer    4(=)
-CDOUBLE                              8    DOUBLE          double     8(=)
-CREAL                                7    REAL            real       7(=)
-CBIGINT                              -5   BIGINT          bigint    -5(=)
-CSMALLINT                            5    SMALLINT        smallint   5(=)
-CNUMERIC                             2    NUMERIC         numeric    2(=)
-CNUMERICP                            2    NUMERIC(10)     numeric    2(=)
-CNUMERICPS                           2    NUMERIC(10, 2)  numeric    2(=)
-CDECIMAL                             2    NUMERIC         numeric    2(=)
-CDECIMALP                            2    NUMERIC(10)     numeric    2(=)
-CDECIMALPS                           2    NUMERIC(10, 2)  numeric    2(=)
-CNUMBER                              6    FLOAT           float      6(=)
-CNUMBERP                             2    NUMERIC(10)     numeric    2(=)
-CNUMBERPS                            2    NUMERIC(10, 2)  numeric    2(=)
-CFLOAT                               6    FLOAT           float      6(=)
-CFLOATP                              6    FLOAT(10)       float      6(=)
-CCHAR                                1    CHAR(10)        char       1(=)
-CVARCHAR                             12   VARCHAR(10)     varchar   12(=)
-CNCHAR                               -8   NCHAR(10)       nchar    -15(!)------------------------
-CNVARCHAR                            -9   NVARCHAR(10)    nvarchar  -9(=)
-CBLOB                                30   BLOB            blob    2004(!) mapping OK
-CCLOB                                40   CLOB            clob    2005(!) mapping OK
-CBYTE                             20001   BYTE(10)        binary    -2(!)------------------------
-CVARBYTE                          20003   VARBYTE(10)     varbinary -3(!)------------------------
-CNIBBLE                           20002   NIBBLE(10)      binary    -2(!)------------------------
-CBIT                                 -7   BIT(10)         binary    -2(!) mapping OK
-CVARBIT                            -100   VARBIT(10)      binary    -2(!)------------------------
-CGEOMETRY                         10003   GEOMETRY(32000) varbinary -3(!)------------------------
+CINT                4    INTEGER         integer    4(=)
+CDOUBLE             8    DOUBLE          double     8(=)
+CREAL               7    REAL            real       7(=)
+CBIGINT             -5   BIGINT          bigint    -5(=)
+CSMALLINT           5    SMALLINT        smallint   5(=)
+CNUMERIC            2    NUMERIC         numeric    2(=)
+CNUMERICP           2    NUMERIC(10)     numeric    2(=)
+CNUMERICPS          2    NUMERIC(10, 2)  numeric    2(=)
+CDECIMAL            2    NUMERIC         numeric    2(=)
+CDECIMALP           2    NUMERIC(10)     numeric    2(=)
+CDECIMALPS          2    NUMERIC(10, 2)  numeric    2(=)
+CNUMBER             6    FLOAT           float      6(=)
+CNUMBERP            2    NUMERIC(10)     numeric    2(=)
+CNUMBERPS           2    NUMERIC(10, 2)  numeric    2(=)
+CFLOAT              6    FLOAT           float      6(=)
+CFLOATP             6    FLOAT(10)       float      6(=)
+CCHAR               1    CHAR(10)        char       1(=)
+CVARCHAR            12   VARCHAR(10)     varchar   12(=)
+CNCHAR              -8   NCHAR(10)       nchar    -15(!)------------------------
+CNVARCHAR           -9   NVARCHAR(10)    nvarchar  -9(=)
+CBLOB               30   BLOB            blob    2004(!) mapping OK
+CCLOB               40   CLOB            clob    2005(!) mapping OK
+CBYTE            20001   BYTE(10)        binary    -2(!)------------------------
+CVARBYTE         20003   VARBYTE(10)     varbinary -3(!)------------------------
+CNIBBLE          20002   NIBBLE(10)      binary    -2(!)------------------------
+CBIT                -7   BIT(10)         binary    -2(!) mapping OK
+CVARBIT           -100   VARBIT(10)      binary    -2(!)------------------------
+CGEOMETRY        10003   GEOMETRY(32000) varbinary -3(!)------------------------
+CDATE                9   DATE            timestamp 93(!) mapping OK
+CTIMESTAMP       20001   TIMESTAMP       binary    -2(!)------------------------
 ------------------------------------------------------------------------------
 
 {"subject":"RT_K1-value","version":1,"id":1,"schema":"{\"type\":\"record\",\"name\":\"K1\",\"fields\":[
@@ -94,8 +100,10 @@ CGEOMETRY                         10003   GEOMETRY(32000) varbinary -3(!)-------
 {\"name\":\"CNVARCHAR\",\"type\":[\"null\",\"string\"],\"default\":null},
 {\"name\":\"CBLOB\",\"type\":[\"null\",\"bytes\"],\"default\":null},
 {\"name\":\"CCLOB\",\"type\":[\"null\",\"string\"],\"default\":null},
-{\"name\":\"CBIT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int8\"}],\"default\":null}],
+{\"name\":\"CBIT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int8\"}],\"default\":null},
+{\"name\":\"CDATE\",\"type\":[\"null\",{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"org.apache.kafka.connect.data.Timestamp\",\"logicalType\":\"timestamp-millis\"}],\"default\":null}],
 \"connect.name\":\"K1\"}"}
+
 drop table k1;
 create table k1 (
 cint INT PRIMARY KEY,
@@ -125,8 +133,10 @@ cvarbyte varbyte(10),-----------
 cnibble nibble(10),----------
 cbit bit(10),
 cvarbit varbit(10),------------
-cgeometry geometry);-----------
-
+cgeometry geometry, -----------
+cdate date,
+ctimestamp timestamp ------------
+);
 insert into k1 (cint,cdouble) values(1,1.1);
 insert into k1 (cint,cdouble) values(2,2.2);
 select cint,cdouble from k1;
