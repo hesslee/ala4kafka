@@ -1,3 +1,36 @@
+------------------------------------------------------------------------------
+NAME                                     TYPE                        IS NULL
+------------------------------------------------------------------------------
+CINT                                 4    INTEGER         FIXED       NOT NULL
+CDOUBLE                              8    DOUBLE          FIXED
+CREAL                                7    REAL            FIXED
+CBIGINT                              -5   BIGINT          FIXED
+CSMALLINT                            5    SMALLINT        FIXED
+CNUMERIC                             2    NUMERIC         FIXED
+CNUMERICP                            2    NUMERIC(10)     FIXED
+CNUMERICPS                           2    NUMERIC(10, 2)  FIXED
+CDECIMAL                             2    NUMERIC         FIXED
+CDECIMALP                            2    NUMERIC(10)     FIXED
+CDECIMALPS                           2    NUMERIC(10, 2)  FIXED
+CNUMBER                              6    FLOAT           FIXED
+CNUMBERP                             2    NUMERIC(10)     FIXED
+CNUMBERPS                            2    NUMERIC(10, 2)  FIXED
+CFLOAT                               6    FLOAT           FIXED
+CFLOATP                              6    FLOAT(10)       FIXED
+CCHAR                                1    CHAR(10)        FIXED
+CVARCHAR                             12   VARCHAR(10)     FIXED
+CNCHAR                               -8   NCHAR(10)       FIXED
+CNVARCHAR                            -9   NVARCHAR(10)    FIXED
+CBLOB                                30   BLOB            LOB
+CCLOB                                40   CLOB            LOB
+CBYTE                             20001   BYTE(10)        FIXED
+CVARBYTE                          20003   VARBYTE(10)     FIXED
+CNIBBLE                           20002   NIBBLE(10)      FIXED
+CBIT                                 -7   BIT(10)         FIXED
+CVARBIT                            -100   VARBIT(10)      FIXED
+CGEOMETRY                         10003   GEOMETRY(32000) VARIABLE
+------------------------------------------------------------------------------
+
 {"subject":"RT_K1-value","version":1,"id":1,"schema":"{\"type\":\"record\",\"name\":\"K1\",\"fields\":[
 {\"name\":\"CINT\",\"type\":\"int\"},
 {\"name\":\"CDOUBLE\",\"type\":[\"null\",\"double\"],\"default\":null},
