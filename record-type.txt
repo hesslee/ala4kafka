@@ -10,23 +10,26 @@ d date
 
 CREATE OR REPLACE PROCEDURE proc1
 AS
+-- anonymous block
+-- declare
     r1 test%ROWTYPE;
 BEGIN
     r1.a := 'abc';
     --r1.b := 777;
     r1.c := '999999';
 
-INSERT INTO test VALUES r1;   
-EXCEPTION
-WHEN OTHERS THEN
--- 69720  : The row already exists in a unique index.
--- 201063 : Duplicate values in an index
--- 200820 : Unable to insert (or update) NULL into NOT NULL column.
-if sqlcode in (69720, 201063, 200820) then
-update test set c = r1.c where a = r1.a ;
-else
-raise;
-end if;
+    INSERT INTO test VALUES r1;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- 69720  : The row already exists in a unique index.
+            -- 201063 : Duplicate values in an index
+            -- 200820 : Unable to insert (or update) NULL into NOT NULL column.
+            if sqlcode in (69720, 201063, 200820) then
+                update test set c = r1.c where a = r1.a ;
+            else
+                raise;
+            end if;
 END;
 /
 
