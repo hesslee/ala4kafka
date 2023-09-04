@@ -40,36 +40,36 @@ java.sql.Types
  public static final int VARCHAR 12 
 
 ------------------------------------------------------------------------------
-NAME                                     TYPE             Java
+NAME                                     TYPE             java.sql.Types
 ------------------------------------------------------------------------------
-CINT                                 4    INTEGER         integer    4
-CDOUBLE                              8    DOUBLE          FIXED
-CREAL                                7    REAL            FIXED
-CBIGINT                              -5   BIGINT          FIXED
-CSMALLINT                            5    SMALLINT        FIXED
-CNUMERIC                             2    NUMERIC         FIXED
-CNUMERICP                            2    NUMERIC(10)     FIXED
-CNUMERICPS                           2    NUMERIC(10, 2)  FIXED
-CDECIMAL                             2    NUMERIC         FIXED
-CDECIMALP                            2    NUMERIC(10)     FIXED
-CDECIMALPS                           2    NUMERIC(10, 2)  FIXED
-CNUMBER                              6    FLOAT           FIXED
-CNUMBERP                             2    NUMERIC(10)     FIXED
-CNUMBERPS                            2    NUMERIC(10, 2)  FIXED
-CFLOAT                               6    FLOAT           FIXED
-CFLOATP                              6    FLOAT(10)       FIXED
-CCHAR                                1    CHAR(10)        FIXED
-CVARCHAR                             12   VARCHAR(10)     FIXED
-CNCHAR                               -8   NCHAR(10)       FIXED
-CNVARCHAR                            -9   NVARCHAR(10)    FIXED
-CBLOB                                30   BLOB            LOB
-CCLOB                                40   CLOB            LOB
-CBYTE                             20001   BYTE(10)        FIXED
-CVARBYTE                          20003   VARBYTE(10)     FIXED
-CNIBBLE                           20002   NIBBLE(10)      FIXED
+CINT                                 4    INTEGER         integer    4(=)
+CDOUBLE                              8    DOUBLE          double     8(=)
+CREAL                                7    REAL            real       7(=)
+CBIGINT                              -5   BIGINT          bigint    -5(=)
+CSMALLINT                            5    SMALLINT        smallint   5(=)
+CNUMERIC                             2    NUMERIC         numeric    2(=)
+CNUMERICP                            2    NUMERIC(10)     numeric    2(=)
+CNUMERICPS                           2    NUMERIC(10, 2)  numeric    2(=)
+CDECIMAL                             2    NUMERIC         numeric    2(=)
+CDECIMALP                            2    NUMERIC(10)     numeric    2(=)
+CDECIMALPS                           2    NUMERIC(10, 2)  numeric    2(=)
+CNUMBER                              6    FLOAT           float      6(=)
+CNUMBERP                             2    NUMERIC(10)     numeric    2(=)
+CNUMBERPS                            2    NUMERIC(10, 2)  numeric    2(=)
+CFLOAT                               6    FLOAT           float      6(=)
+CFLOATP                              6    FLOAT(10)       float      6(=)
+CCHAR                                1    CHAR(10)        char       1(=)
+CVARCHAR                             12   VARCHAR(10)     varchar   12(=)
+CNCHAR                               -8   NCHAR(10)       nchar    -15(!)------------------------
+CNVARCHAR                            -9   NVARCHAR(10)    nvarchar  -9(=)
+CBLOB                                30   BLOB            blob    2004(!) mapping OK
+CCLOB                                40   CLOB            clob    2005(!) mapping OK
+CBYTE                             20001   BYTE(10)        binary    -2(!)------------------------
+CVARBYTE                          20003   VARBYTE(10)     varbinary -3(!)------------------------
+CNIBBLE                           20002   NIBBLE(10)      binary    -2(!)------------------------
 CBIT                                 -7   BIT(10)         FIXED
-CVARBIT                            -100   VARBIT(10)      FIXED
-CGEOMETRY                         10003   GEOMETRY(32000) VARIABLE
+CVARBIT                            -100   VARBIT(10)      FIXED------------------------
+CGEOMETRY                         10003   GEOMETRY(32000) varbinary -3(!)------------------------
 ------------------------------------------------------------------------------
 
 {"subject":"RT_K1-value","version":1,"id":1,"schema":"{\"type\":\"record\",\"name\":\"K1\",\"fields\":[
