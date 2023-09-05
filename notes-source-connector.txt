@@ -1,3 +1,11 @@
+./ul/ulj/src/main/java/Altibase/jdbc/driver/cm/CmGetColumnInfoResult.java
+* timestamp column인 경우에 use_jdbc_datatype 의 true 혹은 false 와 상관없이, getColumns 의 DATA_TYPE 결과로 3010 이 리턴됩니다.
+3010 은 Altibase 내부 데이터타입도 아니고, JDBC 표준 데이터타입도 아닙니다.
+* JDBC 매뉴얼에 use_jdbc_datatype 커넥션 속성에 대한 설명이 추가되면 좋겠습니다.
+getcolumns_return_jdbctype
+
+ grep 'not currently supported' connect.stdout 
+
 SELECT ''                                                          as TABLE_CAT, 
         c.user_name                                                 as TABLE_SCHEM, 
         b.table_name                                                as TABLE_NAME, 
@@ -174,11 +182,10 @@ CTIMESTAMP       20001   TIMESTAMP       binary    -2(!)------------------------
 {\"name\":\"CBLOB\",\"type\":[\"null\",\"bytes\"],\"default\":null},
 {\"name\":\"CCLOB\",\"type\":[\"null\",\"string\"],\"default\":null},
 {\"name\":\"CBIT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int8\"}],\"default\":null},
-{\"name\":\"CDATE\",\"type\":[\"null\",{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"org.apache.kafka.connect.data.Timestamp\",\"logicalType\":\"timestamp-millis\"}],\"default\":null}],
-\"connect.name\":\"K1\"}"}
-
+{\"name\":\"CDATE\",\"type\":[\"null\",{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"org.apache.kafka.connect.data.Timestamp\",\"logicalType\":\"timestamp-millis\"}],\"default\":null}
+],\"connect.name\":\"K1\"}"}
 drop table k1;
-create table k1 (
+create table k2 (
 cint INT PRIMARY KEY,
 cdouble double,
 creal real,
@@ -213,6 +220,8 @@ ctimestamp timestamp ------------
 insert into k1 (cint,cdouble) values(1,1.1);
 insert into k1 (cint,cdouble) values(2,2.2);
 select cint,cdouble from k1;
+insert into k2 (cint,cdouble) values(1,1.1);
+insert into k2 (cint,cdouble) values(2,2.2);
 
 $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  K1   --bootstrap-server localhost:9092
@@ -235,13 +244,13 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
     "config": {
         "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
         "tasks.max": "1",
-        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb?getcolumns_return_jdbctype=true",
         "connection.user": "SYS",
         "connection.password": "MANAGER",
         "quote.sql.identifiers": "NEVER",
         "mode": "incrementing",
         "incrementing.column.name": "CINT",
         "topic.prefix": "RT_",
-        "table.whitelist": "K1"
+        "table.whitelist": "K1,K2"
     }
 }'
