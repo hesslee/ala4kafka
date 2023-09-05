@@ -1,8 +1,5 @@
 ./ul/ulj/src/main/java/Altibase/jdbc/driver/cm/CmGetColumnInfoResult.java
-* timestamp column인 경우에 use_jdbc_datatype 의 true 혹은 false 와 상관없이, getColumns 의 DATA_TYPE 결과로 3010 이 리턴됩니다.
-3010 은 Altibase 내부 데이터타입도 아니고, JDBC 표준 데이터타입도 아닙니다.
-* JDBC 매뉴얼에 use_jdbc_datatype 커넥션 속성에 대한 설명이 추가되면 좋겠습니다.
-getcolumns_return_jdbctype
+
 
  grep 'not currently supported' connect.stdout 
 
@@ -185,7 +182,7 @@ CTIMESTAMP       20001   TIMESTAMP       binary    -2(!)------------------------
 {\"name\":\"CDATE\",\"type\":[\"null\",{\"type\":\"long\",\"connect.version\":1,\"connect.name\":\"org.apache.kafka.connect.data.Timestamp\",\"logicalType\":\"timestamp-millis\"}],\"default\":null}
 ],\"connect.name\":\"K1\"}"}
 drop table k1;
-create table k2 (
+create table k1 (
 cint INT PRIMARY KEY,
 cdouble double,
 creal real,
@@ -235,6 +232,8 @@ $ curl -X GET http://localhost:8081/subjects/RT_K1-value/versions/latest
 
 ###### JDBC source connector using table.whitelist ######
 ## create altibase JDBC source connector using table.whitelist
+** Altibase v7.1 : "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb?getcolumns_return_jdbctype=true"
+** Altibase v7.3 이상 : "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb"
 $ curl -X DELETE "http://localhost:8083/connectors/altibase-source-connector"
 $ curl --location --request POST 'http://localhost:8083/connectors' \
 --header 'Content-Type: application/json' \
