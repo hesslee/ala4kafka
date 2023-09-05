@@ -181,6 +181,7 @@ CNUMBERP   : 13
 CNUMBERPS  : 14.14
 CFLOAT     : 15.15151
 CFLOATP    : 16.16161
+
 {"schema":{"type":"struct","fields":[
 {"type":"int32","optional":false,"field":"CINT"},
 {"type":"double","optional":true,"field":"CDOUBLE"},
@@ -267,10 +268,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "connection.user": "SYS",
         "connection.password": "MANAGER",
         "quote.sql.identifiers": "NEVER",
-        "delete.enabled": true,
-        "insert.mode": "upsert",
-        "pk.mode": "record_key",
-        "pk.fields": "CINT",
+        "insert.mode": "insert",
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",
         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
         "table.name.format": "${topic}",
