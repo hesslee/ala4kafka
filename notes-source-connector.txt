@@ -144,7 +144,7 @@ insert into k1 (cint,cdouble) values(2,2.2);
 select cint,cdouble from k1;
 
 drop table k2;
-create table k2 (
+create table RT_k2 (
 cint INT PRIMARY KEY,
 cdouble double, --2
 creal real, --3
@@ -270,6 +270,7 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "delete.enabled": true,
         "insert.mode": "upsert",
         "pk.mode": "record_key",
+        "pk.fields": "CINT",
         "key.converter": "org.apache.kafka.connect.json.JsonConverter",
         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
         "table.name.format": "${topic}",
