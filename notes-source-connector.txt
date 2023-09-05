@@ -142,8 +142,45 @@ ctimestamp timestamp ------------
 insert into k1 (cint,cdouble) values(1,1.1);
 insert into k1 (cint,cdouble) values(2,2.2);
 select cint,cdouble from k1;
-insert into k2 (cint,cdouble) values(1,1.1);
-insert into k2 (cint,cdouble) values(2,2.2);
+
+drop table k2;
+create table k2 (
+cint INT PRIMARY KEY,
+cdouble double, --2
+creal real, --3
+cbigint bigint, --4
+csmallint smallint, --5
+cnumeric numeric, --6
+cnumericp numeric(10), --7
+cnumericps numeric(10,2), --8
+cdecimal decimal, --9
+cdecimalp decimal(10), --10
+cdecimalps decimal(10,2), --11
+cnumber number, --12
+cnumberp number(10), --13
+cnumberps number(10,2), --14
+cfloat float, --15
+cfloatp float(10) --16
+);
+insert into k2 values(1,2.22222,3.33333,4.44444,5.55555,6.66666,7.77777,8.88888,9.99999,10.10101, 11.11111, 12.12121, 13.13131, 14.14141, 15.15151, 16.16161 );
+set vertical on;
+select * from k2;
+CINT       : 1
+CDOUBLE    : 2.22222
+CREAL      : 3.33333
+CBIGINT    : 4
+CSMALLINT  : 5
+CNUMERIC   : 7
+CNUMERICP  : 8
+CNUMERICPS : 8.89
+CDECIMAL   : 10
+CDECIMALP  : 10
+CDECIMALPS : 11.11
+CNUMBER    : 12.12121
+CNUMBERP   : 13
+CNUMBERPS  : 14.14
+CFLOAT     : 15.15151
+CFLOATP    : 16.16161
 
 $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  K1   --bootstrap-server localhost:9092
@@ -168,6 +205,8 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
     "config": {
         "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
         "tasks.max": "1",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
         "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb?getcolumns_return_jdbctype=true",
         "connection.user": "SYS",
         "connection.password": "MANAGER",
