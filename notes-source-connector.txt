@@ -253,3 +253,26 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "table.whitelist": "K2"
     }
 }'
+
+$ curl -X DELETE "http://localhost:8083/connectors/altibase-sink-connector"
+$ curl --location --request POST 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data-raw '
+{
+    "name": "altibase-sink-connector",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:Altibase://192.168.1.113:24447/mydb",
+        "connection.user": "SYS",
+        "connection.password": "MANAGER",
+        "quote.sql.identifiers": "NEVER",
+        "delete.enabled": true,
+        "insert.mode": "upsert",
+        "pk.mode": "record_key",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "table.name.format": "${topic}",
+        "topics": "RT_K2"
+    }
+}'
