@@ -181,12 +181,48 @@ CNUMBERP   : 13
 CNUMBERPS  : 14.14
 CFLOAT     : 15.15151
 CFLOATP    : 16.16161
+{"schema":{"type":"struct","fields":[
+{"type":"int32","optional":false,"field":"CINT"},
+{"type":"double","optional":true,"field":"CDOUBLE"},
+{"type":"float","optional":true,"field":"CREAL"},
+{"type":"int64","optional":true,"field":"CBIGINT"},
+{"type":"int16","optional":true,"field":"CSMALLINT"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"0","connect.decimal.precision":"38"},"field":"CNUMERIC"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"0","connect.decimal.precision":"10"},"field":"CNUMERICP"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"2","connect.decimal.precision":"10"},"field":"CNUMERICPS"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"0","connect.decimal.precision":"38"},"field":"CDECIMAL"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"0","connect.decimal.precision":"10"},"field":"CDECIMALP"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"2","connect.decimal.precision":"10"},"field":"CDECIMALPS"},
+{"type":"double","optional":true,"field":"CNUMBER"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"0","connect.decimal.precision":"10"},"field":"CNUMBERP"},
+{"type":"bytes","optional":true,"name":"org.apache.kafka.connect.data.Decimal","version":1,"parameters":{"scale":"2","connect.decimal.precision":"10"},"field":"CNUMBERPS"},
+{"type":"double","optional":true,"field":"CFLOAT"},
+{"type":"double","optional":true,"field":"CFLOATP"}
+],"optional":false,"name":"K2"},
+"payload":{"CINT":1,"CDOUBLE":2.22222,"CREAL":3.33333,"CBIGINT":4,"CSMALLINT":5,"CNUMERIC":"Bw==","CNUMERICP":"CA==","CNUMERICPS":"A3k=","CDECIMAL":"Cg==","CDECIMALP":"Cg==","CDECIMALPS":"BFc=","CNUMBER":12.12121,"CNUMBERP":"DQ==","CNUMBERPS":"BYY=","CFLOAT":15.15151,"CFLOATP":16.16161}}
+----------------------
+{\"name\":\"CDOUBLE\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CREAL\",\"type\":[\"null\",\"float\"],\"default\":null},
+{\"name\":\"CBIGINT\",\"type\":[\"null\",\"long\"],\"default\":null},
+{\"name\":\"CSMALLINT\",\"type\":[\"null\",{\"type\":\"int\",\"connect.type\":\"int16\"}],\"default\":null},
+{\"name\":\"CNUMERIC\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":38,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"38\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMERICP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMERICPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMAL\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":38,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"38\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMALP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CDECIMALPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMBER\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CNUMBERP\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":0,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"0\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CNUMBERPS\",\"type\":[\"null\",{\"type\":\"bytes\",\"scale\":2,\"precision\":10,\"connect.version\":1,\"connect.parameters\":{\"scale\":\"2\",\"connect.decimal.precision\":\"10\"},\"connect.name\":\"org.apache.kafka.connect.data.Decimal\",\"logicalType\":\"decimal\"}],\"default\":null},
+{\"name\":\"CFLOAT\",\"type\":[\"null\",\"double\"],\"default\":null},
+{\"name\":\"CFLOATP\",\"type\":[\"null\",\"double\"],\"default\":null},
 
 $ kafka-topics --list   --bootstrap-server localhost:9092
 $ kafka-topics --delete --topic  K1   --bootstrap-server localhost:9092
 $ kafka-topics --create --topic  K1   --bootstrap-server localhost:9092
 $ kafka-topics  --describe --topic K1 --bootstrap-server localhost:9092
 $ kafka-console-consumer --topic K1 --bootstrap-server localhost:9092 --from-beginning
+$ kafka-console-consumer --topic RT_K2 --bootstrap-server localhost:9092 --from-beginning
 
 ###### schema registry
 $ curl -X GET http://localhost:8081/subjects
@@ -214,6 +250,6 @@ $ curl --location --request POST 'http://localhost:8083/connectors' \
         "mode": "incrementing",
         "incrementing.column.name": "CINT",
         "topic.prefix": "RT_",
-        "table.whitelist": "K1,K2"
+        "table.whitelist": "K2"
     }
 }'
