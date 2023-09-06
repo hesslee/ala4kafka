@@ -14,6 +14,7 @@
 #include <alaAPI.h>
 
 /* User-specific Definitions */
+#define QUERY_SIZE      (4196)          /* SQL Query Buffer Size */
 #define ALA_LOG_FILE    "ALA1.log"      /* Log File Name */
 #define ALA_NAME        "ALA1"          /* XLog Sender Name */
 #define SOCKET_TYPE     "TCP"           /* TCP or UNIX */
@@ -281,6 +282,8 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
 {
     ALA_Table      * sTable = NULL;
     ALA_XLogHeader * sXLogHeader = NULL;
+    char             sQuery[QUERY_SIZE];
+
 
     /* Get XLog Header */
     (void)ALA_GetXLogHeader(aXLog,
@@ -313,6 +316,15 @@ ALA_RC applyXLogToAltibase(ALA_Handle aHandle, ALA_XLog * aXLog, ALA_ErrorMgr * 
             printAlaErr(aErrorMgr);
             return ALA_FAILURE;
         }
+
+        memset(sQuery, 0x00, QUERY_SIZE);
+        if(ALA_GetAltibaseSQL(sTable, aXLog, QUERY_SIZE, (signed char *)sQuery, aErrorMgr)
+           != ALA_SUCCESS)
+        {
+            printAlaErr(aErrorMgr);
+            return ALA_FAILURE;
+        }
+        printf("%s\n",sQuery);
 
         mytest(sTable, aXLog);
     }
