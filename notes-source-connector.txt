@@ -143,6 +143,10 @@ insert into k1 (cint,cdouble) values(1,1.1);
 insert into k1 (cint,cdouble) values(2,2.2);
 select cint,cdouble from k1;
 
+CREATE REPLICATION ALA1 FOR ANALYSIS WITH '127.0.0.1', 47146 FROM sys.k2 TO sys.k2;
+ALTER REPLICATION ALA1 START;
+drop REPLICATION ALA1;
+
 drop table k2;
 create table RT_k2 (
 cint INT PRIMARY KEY,
